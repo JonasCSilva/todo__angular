@@ -1,3 +1,6 @@
+import { firebase } from './secrets';
+
 export const environment = {
-  production: true
+  firebase,
+  production: true,
 };

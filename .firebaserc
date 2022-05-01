@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "todo-8c8f0": {
+      "hosting": {
+        "todo": [
+          "todo-8c8f0"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "todo-8c8f0"
+  }
+}
