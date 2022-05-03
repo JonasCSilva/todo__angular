@@ -1,6 +1,6 @@
 export type ItemWithoutId = {
   name: string;
-  checked: string;
+  checked: boolean;
 };
 
 export type Item = ItemWithoutId & {

@@ -70,7 +70,7 @@ export class TodosListComponent implements OnInit {
       'deleteme/6cxhpFWhTNiZBu4ZgjoU/items'
     );
     this.itemsCollection
-      .snapshotChanges(/* ['added', 'removed'] */)
+      .snapshotChanges(['added', 'removed'])
       .pipe(
         map((actions) =>
           actions.map((a) => {
@@ -130,5 +130,11 @@ export class TodosListComponent implements OnInit {
       );
     }
     this.updateItem(event.previousContainer, event.container);
+  }
+
+  changeCheck(event: boolean, itemId: string) {
+    this.afs
+      .doc('deleteme/6cxhpFWhTNiZBu4ZgjoU/items/' + itemId)
+      .update({ checked: event });
   }
 }

@@ -10,7 +10,13 @@
     >
       <div class="todo-box" *ngFor="let item of todo" cdkDrag>
         <div class="todo-custom-placeholder" *cdkDragPlaceholder></div>
-        {{ item.checked }} {{ item.name }}
+        <nb-checkbox
+          class="todo-checkbox"
+          status="primary"
+          [(checked)]="item.checked"
+          (checkedChange)="changeCheck($event, item.id)"
+        ></nb-checkbox>
+        {{ item.name }}
         <div class="todo-handle" cdkDragHandle>
           <svg width="24px" fill="currentColor" viewBox="0 0 24 24">
             <path
@@ -33,7 +39,13 @@
     >
       <div class="todo-box" *ngFor="let item of done" cdkDrag>
         <div class="todo-custom-placeholder" *cdkDragPlaceholder></div>
-        {{ item.checked }} {{ item.name }}
+        <nb-checkbox
+          class="todo-checkbox"
+          status="primary"
+          [(checked)]="item.checked"
+          (checkedChange)="changeCheck($event, item.id)"
+        ></nb-checkbox>
+        {{ item.name }}
         <div class="todo-handle" cdkDragHandle>
           <svg width="24px" fill="currentColor" viewBox="0 0 24 24">
             <path
