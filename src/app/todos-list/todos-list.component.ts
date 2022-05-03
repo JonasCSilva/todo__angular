@@ -13,7 +13,9 @@ import {
 import { map, take } from 'rxjs';
 import { Item, Items, ItemWithoutId } from 'src/utils/types';
 
-type References = { todo: string[]; done: string[] };
+type BoardsMetadata = { name: string; references: string[] }[];
+
+type Boards = Items[];
 
 @Component({
   selector: 'app-todos-list',
@@ -24,12 +26,13 @@ export class TodosListComponent implements OnInit {
   private itemsCollection!: AngularFirestoreCollection<ItemWithoutId>;
   private itemDoc!: AngularFirestoreDocument;
 
-  private references: References = { todo: [], done: [] };
+  public boardsMetadata: BoardsMetadata = [];
+
+  public boardsContent: Boards = [];
+
+  public isSaving = false;
 
   private items: Items = [];
-
-  todo: Items = [];
-  done: Items = [];
 
   constructor(private afs: AngularFirestore) {}
 
@@ -43,8 +46,8 @@ export class TodosListComponent implements OnInit {
   };
 
   observer2 = {
-    next: (documentData?: References) => {
-      if (documentData) this.references = documentData;
+    next: (documentData?: { boards: BoardsMetadata }) => {
+      if (documentData) this.boardsMetadata = documentData.boards;
       this.organizeItem();
     },
     error: (err: any) => console.error('Observer got an error: ' + err),
@@ -52,16 +55,20 @@ export class TodosListComponent implements OnInit {
   };
 
   private organizeItem() {
-    if (!this.references || !this.items) return;
-    this.todo = [];
-    this.done = [];
-    this.references.todo.forEach((reference) => {
-      const todo = this.items.find((element) => element.id === reference);
-      if (todo) this.todo.push(todo as Item);
-    });
-    this.references.done.forEach((reference) => {
-      const done = this.items.find((element) => element.id === reference);
-      if (done) this.done.push(done as Item);
+    if (
+      !this.boardsMetadata ||
+      !this.items ||
+      this.boardsMetadata.length < 1 ||
+      this.items.length < 1
+    )
+      return;
+    this.boardsContent = [];
+    this.boardsMetadata.forEach((boardMetadata, index) => {
+      if (!this.boardsContent[index]) this.boardsContent[index] = [];
+      boardMetadata.references.forEach((reference) => {
+        const todo = this.items.find((element) => element.id === reference);
+        if (todo) this.boardsContent[index].push(todo as Item);
+      });
     });
   }
 
@@ -88,7 +95,7 @@ export class TodosListComponent implements OnInit {
       .pipe(
         take(1),
         map((action) => {
-          return action.payload.data() as References;
+          return action.payload.data() as { boards: BoardsMetadata };
         })
       )
       .subscribe(this.observer2);
@@ -98,20 +105,22 @@ export class TodosListComponent implements OnInit {
     previousContainer: CdkDropList<Items>,
     container: CdkDropList<Items>
   ) {
-    if (previousContainer.id === 'cdk-drop-list-0') {
-      this.itemDoc.update({
-        todo: previousContainer.data.map((item) => item.id),
+    this.isSaving = true;
+
+    const newBoardsMetadata = [...this.boardsMetadata];
+
+    newBoardsMetadata[Number(previousContainer.id.slice(-1))].references =
+      previousContainer.data.map((item) => item.id);
+    newBoardsMetadata[Number(container.id.slice(-1))].references =
+      container.data.map((item) => item.id);
+
+    this.itemDoc
+      .update({
+        boards: newBoardsMetadata,
+      })
+      .then(() => {
+        this.isSaving = false;
       });
-    } else if (previousContainer.id === 'cdk-drop-list-1') {
-      this.itemDoc.update({
-        done: previousContainer.data.map((item) => item.id),
-      });
-    }
-    if (container.id === 'cdk-drop-list-0') {
-      this.itemDoc.update({ todo: container.data.map((item) => item.id) });
-    } else if (container.id === 'cdk-drop-list-1') {
-      this.itemDoc.update({ done: container.data.map((item) => item.id) });
-    }
   }
 
   drop(event: CdkDragDrop<Items>) {
@@ -133,8 +142,12 @@ export class TodosListComponent implements OnInit {
   }
 
   changeCheck(event: boolean, itemId: string) {
+    this.isSaving = true;
     this.afs
       .doc('deleteme/6cxhpFWhTNiZBu4ZgjoU/items/' + itemId)
-      .update({ checked: event });
+      .update({ checked: event })
+      .then(() => {
+        this.isSaving = false;
+      });
   }
 }

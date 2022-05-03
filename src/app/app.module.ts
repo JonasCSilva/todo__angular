@@ -7,6 +7,8 @@ import {
   NbThemeModule,
   NbLayoutModule,
   NbCheckboxModule,
+  NbSpinnerModule,
+  NbCardModule,
 } from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { DragDropModule } from '@angular/cdk/drag-drop';
@@ -29,6 +31,8 @@ import { provideFirestore, getFirestore } from '@angular/fire/firestore';
     NbEvaIconsModule,
     DragDropModule,
     NbCheckboxModule,
+    NbSpinnerModule,
+    NbCardModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)), // TODO test it

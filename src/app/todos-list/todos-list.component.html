@@ -1,51 +1,36 @@
+<nb-card [nbSpinner]="isSaving" nbSpinnerStatus="primary" style="width: 50px">
+  <nb-card-body></nb-card-body>
+</nb-card>
+
 <div cdkDropListGroup>
-  <div class="todo-container">
-    <h2>To do</h2>
+  <div
+    class="todo-container"
+    *ngFor="let board of boardsMetadata; let boardsIndex = index"
+  >
+    <h2>{{ board.name }}</h2>
 
     <div
       cdkDropList
-      [cdkDropListData]="todo"
+      [cdkDropListData]="boardsContent[boardsIndex]"
       class="todo-list"
       (cdkDropListDropped)="drop($event)"
+      [id]="'cdk-drop-list-' + boardsIndex"
     >
-      <div class="todo-box" *ngFor="let item of todo" cdkDrag>
+      <div
+        class="todo-box"
+        *ngFor="let todo of board.references; let boardIndex = index"
+        cdkDrag
+      >
         <div class="todo-custom-placeholder" *cdkDragPlaceholder></div>
         <nb-checkbox
           class="todo-checkbox"
           status="primary"
-          [(checked)]="item.checked"
-          (checkedChange)="changeCheck($event, item.id)"
+          [(checked)]="boardsContent[boardsIndex][boardIndex].checked"
+          (checkedChange)="
+            changeCheck($event, boardsContent[boardsIndex][boardIndex].id)
+          "
         ></nb-checkbox>
-        {{ item.name }}
-        <div class="todo-handle" cdkDragHandle>
-          <svg width="24px" fill="currentColor" viewBox="0 0 24 24">
-            <path
-              d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"
-            ></path>
-          </svg>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="todo-container">
-    <h2>Done</h2>
-
-    <div
-      cdkDropList
-      [cdkDropListData]="done"
-      class="todo-list"
-      (cdkDropListDropped)="drop($event)"
-    >
-      <div class="todo-box" *ngFor="let item of done" cdkDrag>
-        <div class="todo-custom-placeholder" *cdkDragPlaceholder></div>
-        <nb-checkbox
-          class="todo-checkbox"
-          status="primary"
-          [(checked)]="item.checked"
-          (checkedChange)="changeCheck($event, item.id)"
-        ></nb-checkbox>
-        {{ item.name }}
+        {{ boardsContent[boardsIndex][boardIndex].name }}
         <div class="todo-handle" cdkDragHandle>
           <svg width="24px" fill="currentColor" viewBox="0 0 24 24">
             <path
