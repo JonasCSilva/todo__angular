@@ -1,7 +1,6 @@
 export type ItemWithoutId = {
   name: string;
-  index: number;
-  status: string;
+  checked: string;
 };
 
 export type Item = ItemWithoutId & {

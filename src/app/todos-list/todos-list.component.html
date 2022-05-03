@@ -9,7 +9,8 @@
       (cdkDropListDropped)="drop($event)"
     >
       <div class="todo-box" *ngFor="let item of todo" cdkDrag>
-        {{ item.name }}
+        <div class="todo-custom-placeholder" *cdkDragPlaceholder></div>
+        {{ item.checked }} {{ item.name }}
         <div class="todo-handle" cdkDragHandle>
           <svg width="24px" fill="currentColor" viewBox="0 0 24 24">
             <path
@@ -31,7 +32,8 @@
       (cdkDropListDropped)="drop($event)"
     >
       <div class="todo-box" *ngFor="let item of done" cdkDrag>
-        {{ item.name }}
+        <div class="todo-custom-placeholder" *cdkDragPlaceholder></div>
+        {{ item.checked }} {{ item.name }}
         <div class="todo-handle" cdkDragHandle>
           <svg width="24px" fill="currentColor" viewBox="0 0 24 24">
             <path
