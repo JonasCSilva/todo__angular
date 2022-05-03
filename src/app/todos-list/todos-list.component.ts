@@ -1,5 +1,6 @@
 import {
   CdkDragDrop,
+  CdkDropList,
   moveItemInArray,
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
@@ -7,20 +8,12 @@ import { Component, OnInit } from '@angular/core';
 import {
   AngularFirestore,
   AngularFirestoreCollection,
+  AngularFirestoreDocument,
 } from '@angular/fire/compat/firestore';
-import { map } from 'rxjs';
+import { map, take } from 'rxjs';
+import { Item, Items, ItemWithoutId } from 'src/utils/types';
 
-type ItemWithoutID = {
-  name: string;
-  index: number;
-  status: string;
-};
-
-type Item = ItemWithoutID & {
-  id: string;
-};
-
-type Items = Item[];
+type References = { todo: string[]; done: string[] };
 
 @Component({
   selector: 'app-todos-list',
@@ -28,36 +21,56 @@ type Items = Item[];
   styleUrls: ['./todos-list.component.scss'],
 })
 export class TodosListComponent implements OnInit {
-  private itemsCollection!: AngularFirestoreCollection<ItemWithoutID>;
+  private itemsCollection!: AngularFirestoreCollection<ItemWithoutId>;
+  private itemDoc!: AngularFirestoreDocument;
+
+  private references: References = { todo: [], done: [] };
+
+  private items: Items = [];
+
   todo: Items = [];
   done: Items = [];
 
   constructor(private afs: AngularFirestore) {}
 
-  observer = {
-    next: (x: Items) => this.organizeItem(x),
+  observer1 = {
+    next: (items: Items) => {
+      this.items = items;
+      this.organizeItem();
+    },
     error: (err: any) => console.error('Observer got an error: ' + err),
     complete: () => console.log('Observer got a complete notification'),
   };
 
-  private organizeItem(x: Items) {
+  observer2 = {
+    next: (documentData?: References) => {
+      if (documentData) this.references = documentData;
+      this.organizeItem();
+    },
+    error: (err: any) => console.error('Observer got an error: ' + err),
+    complete: () => console.log('Observer got a complete notification'),
+  };
+
+  private organizeItem() {
+    if (!this.references || !this.items) return;
     this.todo = [];
     this.done = [];
-    x.forEach((item) => {
-      if (item.status === 'todo') {
-        this.todo.push(item);
-      } else if (item.status === 'done') {
-        this.done.push(item);
-      }
+    this.references.todo.forEach((reference) => {
+      const todo = this.items.find((element) => element.id === reference);
+      if (todo) this.todo.push(todo as Item);
+    });
+    this.references.done.forEach((reference) => {
+      const done = this.items.find((element) => element.id === reference);
+      if (done) this.done.push(done as Item);
     });
   }
 
   ngOnInit(): void {
-    this.itemsCollection = this.afs.collection('deleteme', (ref) =>
-      ref.orderBy('index')
+    this.itemsCollection = this.afs.collection(
+      'deleteme/6cxhpFWhTNiZBu4ZgjoU/items'
     );
     this.itemsCollection
-      .snapshotChanges(['added', 'removed'])
+      .snapshotChanges(/* ['added', 'removed'] */)
       .pipe(
         map((actions) =>
           actions.map((a) => {
@@ -67,29 +80,37 @@ export class TodosListComponent implements OnInit {
           })
         )
       )
-      .subscribe(this.observer);
+      .subscribe(this.observer1);
+
+    this.itemDoc = this.afs.doc('deleteme/6cxhpFWhTNiZBu4ZgjoU');
+    this.itemDoc
+      .snapshotChanges()
+      .pipe(
+        take(1),
+        map((action) => {
+          return action.payload.data() as References;
+        })
+      )
+      .subscribe(this.observer2);
   }
 
   updateItem(
-    previousIndex: number,
-    currentIndex: number,
-    containerId: string,
-    previousContainerId?: string
+    previousContainer: CdkDropList<Items>,
+    container: CdkDropList<Items>
   ) {
-    if (containerId === 'cdk-drop-list-0' && !previousContainerId) {
-      this.itemsCollection
-        .doc(this.todo[currentIndex].id)
-        .update({ index: currentIndex });
-      this.itemsCollection
-        .doc(this.todo[previousIndex].id)
-        .update({ index: previousIndex });
-    } else if (containerId === 'cdk-drop-list-1' && !previousContainerId) {
-      this.itemsCollection
-        .doc(this.done[currentIndex].id)
-        .update({ index: currentIndex });
-      this.itemsCollection
-        .doc(this.done[previousIndex].id)
-        .update({ index: previousIndex });
+    if (previousContainer.id === 'cdk-drop-list-0') {
+      this.itemDoc.update({
+        todo: previousContainer.data.map((item) => item.id),
+      });
+    } else if (previousContainer.id === 'cdk-drop-list-1') {
+      this.itemDoc.update({
+        done: previousContainer.data.map((item) => item.id),
+      });
+    }
+    if (container.id === 'cdk-drop-list-0') {
+      this.itemDoc.update({ todo: container.data.map((item) => item.id) });
+    } else if (container.id === 'cdk-drop-list-1') {
+      this.itemDoc.update({ done: container.data.map((item) => item.id) });
     }
   }
 
@@ -100,11 +121,6 @@ export class TodosListComponent implements OnInit {
         event.previousIndex,
         event.currentIndex
       );
-      this.updateItem(
-        event.previousIndex,
-        event.currentIndex,
-        event.container.id
-      );
     } else {
       transferArrayItem(
         event.previousContainer.data,
@@ -112,12 +128,7 @@ export class TodosListComponent implements OnInit {
         event.previousIndex,
         event.currentIndex
       );
-      this.updateItem(
-        event.previousIndex,
-        event.currentIndex,
-        event.container.id,
-        event.previousContainer.id
-      );
     }
+    this.updateItem(event.previousContainer, event.container);
   }
 }
