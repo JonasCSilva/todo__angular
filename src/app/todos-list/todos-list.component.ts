@@ -123,7 +123,19 @@ export class TodosListComponent implements OnInit {
       });
   }
 
-  drop(event: CdkDragDrop<Items>) {
+  updateItem2() {
+    this.isSaving = true;
+
+    this.itemDoc
+      .update({
+        boards: this.boardsMetadata,
+      })
+      .then(() => {
+        this.isSaving = false;
+      });
+  }
+
+  dropTodos(event: CdkDragDrop<Items>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(
         event.container.data,
@@ -139,6 +151,20 @@ export class TodosListComponent implements OnInit {
       );
     }
     this.updateItem(event.previousContainer, event.container);
+  }
+
+  dropBoards(event: CdkDragDrop<string[]>) {
+    moveItemInArray(
+      this.boardsMetadata,
+      event.previousIndex,
+      event.currentIndex
+    );
+    moveItemInArray(
+      this.boardsContent,
+      event.previousIndex,
+      event.currentIndex
+    );
+    this.updateItem2();
   }
 
   changeCheck(event: boolean, itemId: string) {

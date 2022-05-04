@@ -1,18 +1,25 @@
-.todo-container {
+.board {
   width: 400px;
-  max-width: 100%;
+  max-height: 100%;
+  display: flex;
   margin: 0 25px 25px 0;
-  display: inline-block;
-  vertical-align: top;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  background: gray;
+  border-radius: 6px;
+  position: relative;
 }
 
-.todo-list {
-  border: solid 1px #ccc;
+.todos-list {
   min-height: 60px;
-  background: white;
-  border-radius: 4px;
+  background: rgb(180, 180, 180);
+  border-radius: 6px;
   overflow: hidden;
   display: block;
+  width: 400px;
+  overflow-y: auto;
 }
 
 .todo-box {
@@ -20,11 +27,9 @@
   border-bottom: solid 1px #ccc;
   color: rgba(0, 0, 0, 0.87);
   display: flex;
-  flex-direction: row;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  /* cursor: move; */
   background: white;
   font-size: 14px;
   position: relative;
@@ -32,7 +37,7 @@
 
 .cdk-drag-preview {
   box-sizing: border-box;
-  border-radius: 4px;
+  border-radius: 6px;
   box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
     0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
 }
@@ -45,11 +50,12 @@
   border: none;
 }
 
-.todo-list.cdk-drop-list-dragging .todo-box:not(.cdk-drag-placeholder) {
+.todos-list.cdk-drop-list-dragging .todo-box:not(.cdk-drag-placeholder) {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-.todo-handle {
+.todo-handle,
+.board-handle {
   position: absolute;
   top: 10px;
   right: 10px;
@@ -62,11 +68,40 @@
 .todo-custom-placeholder {
   background: #ccc;
   border: dotted 3px #999;
-  min-height: 61px;
+  border-radius: 6px;
+  height: 61px;
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 .todo-checkbox {
   position: absolute;
   left: 20px;
+}
+
+.boards-list {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  display: flex;
+  align-items: flex-start;
+  border-radius: 6px;
+  padding: 24px;
+  height: 70vh;
+  background-color: #aaa;
+}
+
+.boards-list.cdk-drop-list-dragging .todo-container:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.boards-custom-placeholder {
+  background: rgb(117, 59, 59);
+  border: dotted 3px #999;
+  margin: 0 25px 25px 0;
+  width: 400px;
+  height: 100%;
+  box-sizing: border-box;
+  border-radius: 6px;
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
