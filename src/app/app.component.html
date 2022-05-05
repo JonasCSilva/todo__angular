@@ -1,9 +1,21 @@
 <nb-layout>
   <nb-layout-header fixed>
-    <!-- Insert header here -->
+    <nav>
+      <ul>
+        <li>
+          <a routerLink="/todos-list" routerLinkActive="active"
+            >First Component</a
+          >
+        </li>
+        <li>
+          <a routerLink="/todo-details" routerLinkActive="active"
+            >Second Component</a
+          >
+        </li>
+      </ul>
+    </nav>
   </nb-layout-header>
   <nb-layout-column>
-    <app-todos-list></app-todos-list>
     <router-outlet></router-outlet>
   </nb-layout-column>
 

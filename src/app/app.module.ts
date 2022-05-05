@@ -19,9 +19,10 @@ import { AngularFireModule } from '@angular/fire/compat';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import { TodoDetailsComponent } from './todo-details/todo-details.component';
 
 @NgModule({
-  declarations: [AppComponent, TodosListComponent],
+  declarations: [AppComponent, TodosListComponent, TodoDetailsComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
